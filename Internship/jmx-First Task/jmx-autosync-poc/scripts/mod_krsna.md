@@ -72,5 +72,3 @@ jmeter -n -t unit-tests/user-service-unit.jmx -l results.jtl
 ```
 
 ---
-
-**Happy Testing! 🚀**
