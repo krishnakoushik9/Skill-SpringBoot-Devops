@@ -1,0 +1,6 @@
+
+.obsidian/
+FineTuning.md
+.env
+*.token
+*.key
