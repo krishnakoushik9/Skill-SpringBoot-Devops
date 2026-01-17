@@ -1,0 +1,93 @@
+# JMX Generation Configuration
+# ============================
+# Default settings for generated JMeter test plans
+
+# Test Execution Settings
+execution:
+  threads: 10              # Number of virtual users
+  ramp_up: 60              # Time to start all threads (seconds)
+  duration: 300            # Test duration (seconds)
+  loop_count: -1           # -1 for infinite (use with duration)
+
+# Timing Settings
+timing:
+  think_time:
+    min: 1000              # Minimum pause between requests (ms)
+    max: 3000              # Maximum pause between requests (ms)
+  connect_timeout: 5000    # Connection timeout (ms)
+  response_timeout: 30000  # Response timeout (ms)
+
+# Test Features
+features:
+  include_assertions: true      # Add response code assertions
+  include_json_assertions: true # Add JSON structure assertions
+  include_listeners: true       # Add result collectors
+  include_think_time: true      # Add pauses between requests
+  group_by_tags: true          # Group endpoints by OpenAPI tags
+
+# Request Defaults
+defaults:
+  content_type: "application/json"
+  accept: "application/json"
+  encoding: "UTF-8"
+
+# Output Settings
+output:
+  directory: "performance-tests"
+  pattern: "{spec_name}.jmx"    # Naming pattern
+  add_timestamp: true           # Add generation timestamp
+  add_metadata: true            # Add OpenAPI info as comments
+
+# Environment Profiles
+# Use with: "generate jmx using [profile] profile"
+profiles:
+  development:
+    threads: 5
+    duration: 60
+    ramp_up: 10
+    variables:
+      SERVER: "localhost"
+      PORT: "8081"
+      PROTOCOL: "http"
+  
+  staging:
+    threads: 25
+    duration: 300
+    ramp_up: 60
+    variables:
+      SERVER: "staging-api.example.com"
+      PORT: "443"
+      PROTOCOL: "https"
+  
+  load:
+    threads: 100
+    duration: 600
+    ramp_up: 120
+    variables:
+      SERVER: "api.example.com"
+      PORT: "443"
+      PROTOCOL: "https"
+  
+  stress:
+    threads: 500
+    duration: 300
+    ramp_up: 60
+    variables:
+      SERVER: "api.example.com"
+      PORT: "443"
+      PROTOCOL: "https"
+
+# Variable Naming
+variables:
+  # How to name path parameter variables
+  # Options: UPPERCASE, lowercase, camelCase
+  path_params: "UPPERCASE"
+  
+  # Standard variables included in every test
+  standard:
+    - name: "AUTH_TOKEN"
+      description: "Bearer token for authentication"
+      default: ""
+    - name: "CORRELATION_ID"
+      description: "Request correlation ID"
+      default: "${__UUID()}"

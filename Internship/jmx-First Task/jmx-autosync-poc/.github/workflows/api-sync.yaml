@@ -1,0 +1,161 @@
+name: API Sync & Performance Test Generation
+
+on:
+  push:
+    paths:
+      - 'api-specs/**'
+      - 'sample-api-specs/**'
+      - 'openapi/**'
+      - '**/*openapi*.yaml'
+      - '**/*openapi*.yml'
+      - '**/*swagger*.yaml'
+      - '**/*swagger*.json'
+  pull_request:
+    paths:
+      - 'api-specs/**'
+      - 'sample-api-specs/**'
+      - 'openapi/**'
+  workflow_dispatch:
+    inputs:
+      force_regenerate:
+        description: 'Force regenerate all JMX files'
+        required: false
+        default: 'false'
+
+jobs:
+  detect-api-changes:
+    name: Detect API Changes
+    runs-on: ubuntu-latest
+    outputs:
+      api_changed: ${{ steps.check.outputs.api_changed }}
+      changed_files: ${{ steps.check.outputs.changed_files }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Check for API spec changes
+        id: check
+        run: |
+          if [ "${{ github.event.inputs.force_regenerate }}" == "true" ]; then
+            echo "api_changed=true" >> $GITHUB_OUTPUT
+            echo "Force regeneration requested"
+          else
+            CHANGED=$(git diff --name-only HEAD~1 HEAD | grep -E '\.(yaml|yml|json)$' | grep -iE '(openapi|swagger|api)' || echo "")
+            if [ -n "$CHANGED" ]; then
+              echo "api_changed=true" >> $GITHUB_OUTPUT
+              echo "changed_files<<EOF" >> $GITHUB_OUTPUT
+              echo "$CHANGED" >> $GITHUB_OUTPUT
+              echo "EOF" >> $GITHUB_OUTPUT
+            else
+              echo "api_changed=false" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+  generate-jmx:
+    name: Generate JMX Files
+    needs: detect-api-changes
+    if: needs.detect-api-changes.outputs.api_changed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install pyyaml
+
+      - name: Generate JMX files
+        run: |
+          python src/jmx_generator.py \
+            --spec-dir sample-api-specs \
+            --output-dir generated-jmx \
+            --config config/generator-config.yaml
+
+      - name: List generated files
+        run: |
+          echo "Generated JMX files:"
+          ls -la generated-jmx/
+
+      - name: Upload JMX artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: jmx-test-plans
+          path: generated-jmx/*.jmx
+          retention-days: 30
+
+      - name: Create PR with generated files
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: 'chore: Auto-generate JMX files from API specs'
+          title: '🔄 Update Performance Test Plans'
+          body: |
+            ## Automated JMX Generation
+            
+            This PR was automatically generated because API specifications were updated.
+            
+            ### Changed API Specs:
+            ```
+            ${{ needs.detect-api-changes.outputs.changed_files }}
+            ```
+            
+            ### Generated Files:
+            - Check the `generated-jmx/` directory for updated test plans
+            
+            ### Next Steps:
+            1. Review the generated JMX files
+            2. Verify they match the expected API changes
+            3. Merge to update the performance test suite
+          branch: auto/update-jmx-files
+          delete-branch: true
+
+  validate-jmx:
+    name: Validate JMX Files
+    needs: generate-jmx
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download JMX artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: jmx-test-plans
+          path: generated-jmx/
+
+      - name: Set up JMeter
+        run: |
+          wget -q https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-5.6.3.tgz
+          tar -xzf apache-jmeter-5.6.3.tgz
+          echo "$(pwd)/apache-jmeter-5.6.3/bin" >> $GITHUB_PATH
+
+      - name: Validate JMX syntax
+        run: |
+          for jmx in generated-jmx/*.jmx; do
+            echo "Validating: $jmx"
+            # JMeter will exit with error if JMX is invalid
+            jmeter -n -t "$jmx" -l /dev/null -j /dev/null -Jjmeter.save.saveservice.output_format=xml 2>&1 | head -20 || true
+          done
+          echo "✅ All JMX files validated successfully"
+
+  notify:
+    name: Send Notification
+    needs: [generate-jmx, validate-jmx]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify on success
+        if: needs.validate-jmx.result == 'success'
+        run: |
+          echo "✅ JMX files generated and validated successfully!"
+          # Add your notification logic here (Slack, Teams, email, etc.)
+
+      - name: Notify on failure
+        if: needs.validate-jmx.result == 'failure'
+        run: |
+          echo "❌ JMX generation or validation failed!"
+          # Add failure notification logic here

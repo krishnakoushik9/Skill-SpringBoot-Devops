@@ -1,0 +1,79 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "JMX Auto-Sync Watch",
+            "detail": "Automatically detect API spec changes and generate JMX files",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "scripts/jmx_generator.py",
+                "--spec-dir",
+                "api-specs",
+                "--output-dir",
+                "performance-tests",
+                "--watch"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "isBackground": true,
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "runOptions": {
+                "runOn": "folderOpen"
+            }
+        },
+        {
+            "label": "Generate All JMX",
+            "detail": "Generate JMX files for all API specs (one-time)",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "scripts/jmx_generator.py",
+                "--spec-dir",
+                "api-specs",
+                "--output-dir",
+                "performance-tests"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Generate JMX for Current File",
+            "detail": "Generate JMX for the currently open API spec file",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "scripts/jmx_generator.py",
+                "--spec",
+                "${file}",
+                "--output",
+                "performance-tests/${fileBasenameNoExtension}.jmx"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            }
+        }
+    ]
+}

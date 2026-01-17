@@ -1,0 +1,905 @@
+openapi: 3.0.3
+info:
+  title: User Service API
+  description: Microservice for user management and authentication
+  version: 1.1.0   # ← CHANGED from 1.0.0
+  contact:
+    name: API Team
+    email: api-team@example.com
+# test auto-sync
+servers:
+  - url: http://localhost:8081/api/v1
+    description: Local Development
+  - url: https://staging-api.example.com/users/v1
+    description: Staging Environment
+
+tags:
+  - name: Users
+    description: User management operations
+  - name: Authentication
+    description: Login and token management
+  - name: Profile
+    description: User profile operations
+  - name: Settings            # ← NEW TAG
+    description: User settings and preferences
+  - name: Doubts #Added new Tag
+    description: User's doubts and questions management
+
+paths:
+  /users:
+    get:
+      operationId: listUsers
+      summary: List all users
+      description: Retrieve paginated list of all users
+      tags:
+        - Users
+      parameters:
+        - name: page
+          in: query
+          description: Page number
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: limit
+          in: query
+          description: Items per page
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+        - name: status
+          in: query
+          description: Filter by status
+          schema:
+            type: string
+            enum: [active, inactive, suspended]
+        - name: search
+          in: query
+          description: Search by name or email
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserListResponse'
+
+    post:
+      operationId: createUser
+      summary: Create new user
+      description: Register a new user in the system
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+            example:
+              email: "john.doe@example.com"
+              password: "SecurePass123!"
+              firstName: "John"
+              lastName: "Doe"
+              role: "user"
+      responses:
+        '201':
+          description: User created successfully
+        '400':
+          description: Invalid request data
+        '409':
+          description: Email already exists
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # NEW ENDPOINT: Bulk user operations
+  # ═══════════════════════════════════════════════════════════════════════════
+  /users/bulk:
+    post:
+      operationId: bulkCreateUsers
+      summary: Bulk create users
+      description: Create multiple users in a single request
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              users:
+                - email: "user1@example.com"
+                  firstName: "User"
+                  lastName: "One"
+                  password: "Pass123!"
+                - email: "user2@example.com"
+                  firstName: "User"
+                  lastName: "Two"
+                  password: "Pass456!"
+      responses:
+        '201':
+          description: Users created successfully
+        '400':
+          description: Invalid request data
+
+    delete:
+      operationId: bulkDeleteUsers
+      summary: Bulk delete users
+      description: Delete multiple users by IDs
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              userIds:
+                - "550e8400-e29b-41d4-a716-446655440001"
+                - "550e8400-e29b-41d4-a716-446655440002"
+      responses:
+        '204':
+          description: Users deleted successfully
+
+  /users/{userId}:
+    get:
+      operationId: getUserById
+      summary: Get user by ID
+      description: Retrieve detailed information about a specific user
+      tags:
+        - Users
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: Unique user identifier
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+    put:
+      operationId: updateUser
+      summary: Update user
+      description: Update user information
+      tags:
+        - Users
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+            example:
+              firstName: "John"
+              lastName: "Smith"
+              phone: "+1-555-0123"
+      responses:
+        '200':
+          description: User updated
+        '404':
+          description: User not found
+
+    delete:
+      operationId: deleteUser
+      summary: Delete user
+      description: Soft delete a user account
+      tags:
+        - Users
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: User deleted
+        '404':
+          description: User not found
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # NEW ENDPOINT: User activity log
+  # ═══════════════════════════════════════════════════════════════════════════
+  /users/{userId}/activity:
+    get:
+      operationId: getUserActivity
+      summary: Get user activity log
+      description: Retrieve recent activity history for a user
+      tags:
+        - Users
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: limit
+          in: query
+          description: Number of activities to return
+          schema:
+            type: integer
+            default: 50
+      responses:
+        '200':
+          description: Activity log retrieved
+        '404':
+          description: User not found
+
+  /users/{userId}/profile:
+    get:
+      operationId: getUserProfile
+      summary: Get user profile
+      description: Retrieve extended profile information
+      tags:
+        - Profile
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Profile retrieved
+        '404':
+          description: User not found
+
+    patch:
+      operationId: updateUserProfile
+      summary: Update user profile
+      description: Partially update profile fields
+      tags:
+        - Profile
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+            example:
+              bio: "Software developer"
+              avatar: "https://example.com/avatar.jpg"
+              preferences:
+                theme: "dark"
+                language: "en"
+      responses:
+        '200':
+          description: Profile updated
+        '404':
+          description: User not found
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # NEW ENDPOINT: Avatar management
+  # ═══════════════════════════════════════════════════════════════════════════
+  /users/{userId}/avatar:
+    post:
+      operationId: uploadAvatar
+      summary: Upload user avatar
+      description: Upload or update user profile picture
+      tags:
+        - Profile
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              imageUrl: "https://cdn.example.com/avatars/user123.jpg"
+              imageBase64: "data:image/png;base64,iVBORw0KGgo..."
+      responses:
+        '200':
+          description: Avatar uploaded
+        '400':
+          description: Invalid image format
+        '404':
+          description: User not found
+
+    delete:
+      operationId: deleteAvatar
+      summary: Delete user avatar
+      description: Remove user profile picture
+      tags:
+        - Profile
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Avatar deleted
+        '404':
+          description: User not found
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # NEW SECTION: User Settings (NEW TAG)
+  # ═══════════════════════════════════════════════════════════════════════════
+  /users/{userId}/settings:
+    get:
+      operationId: getUserSettings
+      summary: Get user settings
+      description: Retrieve all user settings and preferences
+      tags:
+        - Settings
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Settings retrieved
+        '404':
+          description: User not found
+
+    put:
+      operationId: updateUserSettings
+      summary: Update user settings
+      description: Update all user settings
+      tags:
+        - Settings
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              notifications:
+                email: true
+                push: true
+                sms: false
+              privacy:
+                profileVisibility: "public"
+                showEmail: false
+              language: "en"
+              timezone: "America/New_York"
+      responses:
+        '200':
+          description: Settings updated
+        '404':
+          description: User not found
+
+  /users/{userId}/settings/notifications:
+    get:
+      operationId: getNotificationSettings
+      summary: Get notification settings
+      description: Retrieve user notification preferences
+      tags:
+        - Settings
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Notification settings retrieved
+        '404':
+          description: User not found
+
+    patch:
+      operationId: updateNotificationSettings
+      summary: Update notification settings
+      description: Partially update notification preferences
+      tags:
+        - Settings
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              email: true
+              push: false
+              sms: false
+              frequency: "daily"
+      responses:
+        '200':
+          description: Notification settings updated
+        '404':
+          description: User not found
+
+  /auth/login:
+    post:
+      operationId: login
+      summary: User login
+      description: Authenticate user and receive access token
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            example:
+              email: "john.doe@example.com"
+              password: "SecurePass123!"
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Invalid credentials
+
+  /auth/logout:
+    post:
+      operationId: logout
+      summary: User logout
+      description: Invalidate current session
+      tags:
+        - Authentication
+      responses:
+        '204':
+          description: Logged out successfully
+
+  /auth/refresh:
+    post:
+      operationId: refreshToken
+      summary: Refresh access token
+      description: Get new access token using refresh token
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refreshToken
+              properties:
+                refreshToken:
+                  type: string
+            example:
+              refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+      responses:
+        '200':
+          description: Token refreshed
+        '401':
+          description: Invalid refresh token
+
+  /auth/password/reset:
+    post:
+      operationId: requestPasswordReset
+      summary: Request password reset
+      description: Send password reset email
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+            example:
+              email: "john.doe@example.com"
+      responses:
+        '202':
+          description: Reset email sent
+        '404':
+          description: Email not found
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # NEW ENDPOINT: Change password (authenticated)
+  # ═══════════════════════════════════════════════════════════════════════════
+  /auth/password/change:
+    post:
+      operationId: changePassword
+      summary: Change password
+      description: Change password for authenticated user
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              currentPassword: "OldPass123!"
+              newPassword: "NewSecurePass456!"
+              confirmPassword: "NewSecurePass456!"
+      responses:
+        '200':
+          description: Password changed successfully
+        '400':
+          description: Invalid password format
+        '401':
+          description: Current password incorrect
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # NEW ENDPOINT: Two-factor authentication
+  # Enable multi-factor authentication
+  # ═══════════════════════════════════════════════════════════════════════════
+  /auth/2fa/enable:
+    post:
+      operationId: enable2FA
+      summary: Enable multi-factor authentication
+      description: Generate 2FA secret and QR code
+      tags:
+        - Authentication
+      responses:
+        '200':
+          description: 2FA setup initiated
+          content:
+            application/json:
+              example:
+                secret: "JBSWY3DPEHPK3PXP"
+                qrCode: "data:image/png;base64,..."
+                backupCodes:
+                  - "12345678"
+                  - "87654321"
+
+  /auth/2fa/verify:
+    post:
+      operationId: verify2FA
+      summary: Verify 2FA code
+      description: Verify one-time password for 2FA
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              code: "123456"
+      responses:
+        '200':
+          description: 2FA verified successfully
+        '401':
+          description: Invalid 2FA code
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # DOUBTS SECTION - User's questions and doubts management -- Added by krsna
+  # ═══════════════════════════════════════════════════════════════════════════
+  /users/{userId}/doubts:
+    get:
+      operationId: getUserDoubts
+      summary: Get user's doubts
+      description: Retrieve all doubts/questions posted by a user
+      tags:
+        - Doubts
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: Unique user identifier
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          description: Filter by doubt status
+          schema:
+            type: string
+            enum: [pending, answered, closed]
+        - name: limit
+          in: query
+          description: Number of doubts to return
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Doubts retrieved successfully
+        '404':
+          description: User not found
+
+    post:
+      operationId: createDoubt
+      summary: Create a new doubt
+      description: Post a new doubt/question for the user
+      tags:
+        - Doubts
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              title: "How does authentication work?"
+              description: "I need help understanding the login flow"
+              category: "technical"
+              priority: "medium"
+      responses:
+        '201':
+          description: Doubt created successfully
+        '400':
+          description: Invalid request data
+        '404':
+          description: User not found
+
+  /users/{userId}/doubts/{doubtId}:
+    get:
+      operationId: getDoubtById
+      summary: Get specific doubt
+      description: Retrieve details of a specific doubt
+      tags:
+        - Doubts
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: doubtId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Doubt retrieved successfully
+        '404':
+          description: Doubt not found
+
+    put:
+      operationId: updateDoubt
+      summary: Update a doubt
+      description: Update an existing doubt
+      tags:
+        - Doubts
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: doubtId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              title: "Updated question title"
+              description: "More details about my question"
+              status: "pending"
+      responses:
+        '200':
+          description: Doubt updated successfully
+        '404':
+          description: Doubt not found
+
+    delete:
+      operationId: deleteDoubt
+      summary: Delete a doubt
+      description: Remove a doubt from the system
+      tags:
+        - Doubts
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: doubtId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Doubt deleted successfully
+        '404':
+          description: Doubt not found
+
+  /users/{userId}/doubts/{doubtId}/answer:
+    post:
+      operationId: answerDoubt
+      summary: Answer a doubt
+      description: Provide an answer to a user's doubt
+      tags:
+        - Doubts
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: doubtId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              answer: "Here's how authentication works..."
+              answeredBy: "support-agent-123"
+      responses:
+        '200':
+          description: Answer posted successfully
+        '404':
+          description: Doubt not found
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        firstName:
+          type: string
+        lastName:
+          type: string
+        role:
+          type: string
+          enum: [admin, user, guest]
+        status:
+          type: string
+          enum: [active, inactive, suspended]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateUserRequest:
+      type: object
+      required:
+        - email
+        - password
+        - firstName        
+        - lastName
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+        firstName:
+          type: string
+        lastName:
+          type: string
+        role:
+          type: string
+          default: user
+
+    UpdateUserRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        phone:
+          type: string
+
+    UpdateProfileRequest:
+      type: object
+      properties:
+        bio:
+          type: string
+        avatar:
+          type: string
+          format: uri
+        preferences:
+          type: object
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    AuthResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        expiresIn:
+          type: integer
+        tokenType:
+          type: string
+          default: Bearer
+
+    UserListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+        pagination:
+          type: object
+          properties:
+            page:
+              type: integer
+            limit:
+              type: integer
+            total:
+              type: integer
+            totalPages:
+              type: integer

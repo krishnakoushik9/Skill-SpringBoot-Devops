@@ -1,0 +1,733 @@
+openapi: 3.0.3
+info:
+  title: Product Service API
+  description: Microservice for product catalog management
+  version: 1.1.0
+
+servers:
+  - url: http://localhost:8083/api/v1
+    description: Local Development
+  - url: https://staging-api.example.com/products/v1
+    description: Staging Environment
+
+tags:
+  - name: Products
+    description: Product catalog operations
+  - name: Categories
+    description: Product categories
+  - name: Inventory
+    description: Stock management
+  - name: Reviews
+    description: Product reviews and ratings
+
+paths:
+  /products:
+    get:
+      operationId: listProducts
+      summary: List products
+      description: Retrieve paginated product catalog
+      tags:
+        - Products
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: minPrice
+          in: query
+          schema:
+            type: number
+        - name: maxPrice
+          in: query
+          schema:
+            type: number
+        - name: inStock
+          in: query
+          schema:
+            type: boolean
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+            enum: [name, price, createdAt, popularity]
+        - name: sortOrder
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: asc
+      responses:
+        '200':
+          description: Products retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductListResponse'
+
+    post:
+      operationId: createProduct
+      summary: Create product
+      description: Add new product to catalog
+      tags:
+        - Products
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProductRequest'
+            example:
+              name: "Wireless Bluetooth Headphones"
+              description: "Premium noise-cancelling headphones"
+              sku: "WBH-001"
+              price: 149.99
+              categoryId: "cat_electronics"
+              images:
+                - "https://example.com/images/headphones-1.jpg"
+                - "https://example.com/images/headphones-2.jpg"
+              attributes:
+                color: "Black"
+                weight: "250g"
+                batteryLife: "30 hours"
+      responses:
+        '201':
+          description: Product created
+        '400':
+          description: Invalid product data
+        '409':
+          description: SKU already exists
+
+  # NEW: Bulk product operations
+  /products/bulk:
+    post:
+      operationId: bulkCreateProducts
+      summary: Bulk create products
+      description: Create multiple products at once
+      tags:
+        - Products
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              products:
+                - name: "Product 1"
+                  sku: "SKU-001"
+                  price: 29.99
+                  categoryId: "cat_001"
+                - name: "Product 2"
+                  sku: "SKU-002"
+                  price: 39.99
+                  categoryId: "cat_001"
+      responses:
+        '201':
+          description: Products created
+        '400':
+          description: Invalid data
+
+    delete:
+      operationId: bulkDeleteProducts
+      summary: Bulk delete products
+      description: Delete multiple products by IDs
+      tags:
+        - Products
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              productIds:
+                - "prod_001"
+                - "prod_002"
+      responses:
+        '204':
+          description: Products deleted
+
+  # NEW: Product search
+  /products/search:
+    post:
+      operationId: advancedSearch
+      summary: Advanced product search
+      description: Search with complex filters
+      tags:
+        - Products
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              query: "headphones"
+              filters:
+                categories: ["electronics", "audio"]
+                priceRange:
+                  min: 50
+                  max: 500
+                inStock: true
+                rating: 4
+              sort:
+                field: "popularity"
+                order: "desc"
+      responses:
+        '200':
+          description: Search results
+
+  /products/{productId}:
+    get:
+      operationId: getProductById
+      summary: Get product details
+      description: Retrieve complete product information
+      tags:
+        - Products
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Product found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Product not found
+
+    put:
+      operationId: updateProduct
+      summary: Update product
+      description: Update product information
+      tags:
+        - Products
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProductRequest'
+            example:
+              name: "Wireless Bluetooth Headphones Pro"
+              price: 179.99
+              description: "Premium noise-cancelling headphones with enhanced bass"
+      responses:
+        '200':
+          description: Product updated
+        '404':
+          description: Product not found
+
+    delete:
+      operationId: deleteProduct
+      summary: Delete product
+      description: Remove product from catalog
+      tags:
+        - Products
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Product deleted
+        '404':
+          description: Product not found
+
+  /products/{productId}/inventory:
+    get:
+      operationId: getProductInventory
+      summary: Get product inventory
+      description: Check stock levels for a product
+      tags:
+        - Inventory
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Inventory retrieved
+        '404':
+          description: Product not found
+
+    put:
+      operationId: updateProductInventory
+      summary: Update inventory
+      description: Update stock quantity
+      tags:
+        - Inventory
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: integer
+                operation:
+                  type: string
+                  enum: [set, add, subtract]
+                reason:
+                  type: string
+            example:
+              quantity: 100
+              operation: "set"
+              reason: "Inventory restock"
+      responses:
+        '200':
+          description: Inventory updated
+        '404':
+          description: Product not found
+
+  # NEW: Product reviews
+  /products/{productId}/reviews:
+    get:
+      operationId: getProductReviews
+      summary: Get product reviews
+      description: List all reviews for a product
+      tags:
+        - Reviews
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: rating
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 5
+      responses:
+        '200':
+          description: Reviews retrieved
+        '404':
+          description: Product not found
+
+    post:
+      operationId: createProductReview
+      summary: Create product review
+      description: Add a review for a product
+      tags:
+        - Reviews
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              rating: 5
+              title: "Great product"
+              comment: "Excellent quality and fast shipping"
+              userId: "user_123"
+      responses:
+        '201':
+          description: Review created
+        '400':
+          description: Invalid review data
+        '404':
+          description: Product not found
+
+  /products/{productId}/reviews/{reviewId}:
+    get:
+      operationId: getReviewById
+      summary: Get review details
+      description: Get a specific review
+      tags:
+        - Reviews
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: reviewId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Review found
+        '404':
+          description: Review not found
+
+    delete:
+      operationId: deleteReview
+      summary: Delete review
+      description: Remove a review
+      tags:
+        - Reviews
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: reviewId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Review deleted
+        '404':
+          description: Review not found
+
+  /categories:
+    get:
+      operationId: listCategories
+      summary: List categories
+      description: Get all product categories
+      tags:
+        - Categories
+      parameters:
+        - name: parentId
+          in: query
+          description: Filter by parent category
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Categories retrieved
+
+    post:
+      operationId: createCategory
+      summary: Create category
+      description: Add new product category
+      tags:
+        - Categories
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCategoryRequest'
+            example:
+              name: "Electronics"
+              description: "Electronic devices and accessories"
+              parentId: null
+      responses:
+        '201':
+          description: Category created
+        '400':
+          description: Invalid category data
+
+  /categories/{categoryId}:
+    get:
+      operationId: getCategoryById
+      summary: Get category
+      description: Get category details
+      tags:
+        - Categories
+      parameters:
+        - name: categoryId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Category found
+        '404':
+          description: Category not found
+
+    put:
+      operationId: updateCategory
+      summary: Update category
+      description: Update category information
+      tags:
+        - Categories
+      parameters:
+        - name: categoryId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCategoryRequest'
+            example:
+              name: "Consumer Electronics"
+              description: "Consumer electronic devices"
+      responses:
+        '200':
+          description: Category updated
+        '404':
+          description: Category not found
+
+    delete:
+      operationId: deleteCategory
+      summary: Delete category
+      description: Remove category (must be empty)
+      tags:
+        - Categories
+      parameters:
+        - name: categoryId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Category deleted
+        '400':
+          description: Category not empty
+        '404':
+          description: Category not found
+
+  /categories/{categoryId}/products:
+    get:
+      operationId: getProductsByCategory
+      summary: Get products in category
+      description: List all products in a category
+      tags:
+        - Categories
+      parameters:
+        - name: categoryId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Products retrieved
+        '404':
+          description: Category not found
+
+  # NEW: Inventory alerts
+  /inventory/alerts:
+    get:
+      operationId: getInventoryAlerts
+      summary: Get low stock alerts
+      description: List products with low inventory
+      tags:
+        - Inventory
+      parameters:
+        - name: threshold
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Alerts retrieved
+
+  /inventory/history/{productId}:
+    get:
+      operationId: getInventoryHistory
+      summary: Get inventory history
+      description: Get stock change history for a product
+      tags:
+        - Inventory
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: fromDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: toDate
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: History retrieved
+        '404':
+          description: Product not found
+
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        sku:
+          type: string
+        price:
+          type: number
+          format: decimal
+        categoryId:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+        attributes:
+          type: object
+        inStock:
+          type: boolean
+        stockQuantity:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateProductRequest:
+      type: object
+      required:
+        - name
+        - sku
+        - price
+        - categoryId
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        sku:
+          type: string
+        price:
+          type: number
+        categoryId:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+        attributes:
+          type: object
+
+    UpdateProductRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        categoryId:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+        attributes:
+          type: object
+
+    Category:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        parentId:
+          type: string
+        productCount:
+          type: integer
+
+    CreateCategoryRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        parentId:
+          type: string
+
+    UpdateCategoryRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+
+    ProductListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+        pagination:
+          type: object
+          properties:
+            page:
+              type: integer
+            limit:
+              type: integer
+            total:
+              type: integer

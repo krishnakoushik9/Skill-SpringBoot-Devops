@@ -1,0 +1,94 @@
+# JMX Auto-Sync - Windsurf Project Rules
+# =====================================
+# This file configures Windsurf's Cascade AI to automatically
+# generate JMeter test plans from OpenAPI specifications.
+
+project:
+  name: "JMX Auto-Sync POC"
+  type: "performance-testing"
+  description: "Automatically generate JMeter tests from OpenAPI specs"
+
+# =============================================================================
+# FILE WATCHING - Trigger on API spec changes
+# =============================================================================
+watch:
+  triggers:
+    - "api-specs/**/*.yaml"
+    - "api-specs/**/*.yml"
+    - "api-specs/**/*.json"
+
+# =============================================================================
+# DIRECTORIES
+# =============================================================================
+directories:
+  api_specs: "api-specs"
+  output: "performance-tests"
+  config: ".windsurf"
+  scripts: "scripts"
+
+# =============================================================================
+# CASCADE AI CONFIGURATION
+# =============================================================================
+cascade:
+  # Files Cascade should read for context
+  context_files:
+    - ".windsurf/memories.md"
+    - ".cascade/jmx-instructions.md"
+    - ".windsurf/jmx-config.yaml"
+  
+  # Enable auto-suggestions when files change
+  auto_suggest: true
+  
+  # Natural language command mappings
+  commands:
+    - trigger: "generate jmx"
+      action: "Parse OpenAPI spec and generate JMeter test plan"
+    
+    - trigger: "sync performance tests"
+      action: "Regenerate all JMX files from all API specs"
+    
+    - trigger: "sync all"
+      action: "Regenerate all JMX files from all API specs"
+    
+    - trigger: "add endpoint"
+      action: "Add endpoint to OpenAPI spec and regenerate JMX"
+    
+    - trigger: "show apis"
+      action: "List all API specs in api-specs directory"
+
+# =============================================================================
+# ON-SAVE ACTIONS
+# =============================================================================
+on_save:
+  - pattern: "api-specs/**/*.yaml"
+    prompt: |
+      🔄 **API Specification Changed!**
+      
+      I detected changes to an OpenAPI spec file.
+      
+      Would you like me to regenerate the JMX performance test file?
+      
+      Say **"yes"** or **"regenerate"** to update the tests.
+
+# =============================================================================
+# QUICK ACTIONS (shown in Windsurf UI)
+# =============================================================================
+quick_actions:
+  - name: "🧪 Generate All JMX"
+    command: "Generate JMX files for all API specs"
+  
+  - name: "🔄 Sync Single API"
+    command: "Generate JMX for specific API spec"
+  
+  - name: "📊 List APIs"
+    command: "Show all API specs and their endpoints"
+
+# =============================================================================
+# DEFAULT TEST SETTINGS
+# =============================================================================
+defaults:
+  threads: 10
+  ramp_up: 60
+  duration: 300
+  think_time_min: 1000
+  think_time_max: 3000

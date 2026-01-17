@@ -1,0 +1,17 @@
+---
+1 : "This is Value 1"
+"Apple" : "Red Fruit"
+"First_ex" : "Krsna first YAML example"
+---
+Big Tech Companies:
+  - Google
+  - Apple
+  - Microsoft
+  - Amazon
+  - Facebook
+---
+cities:
+  - Hyderabad
+  - Mumbai
+  - Chennai
+...

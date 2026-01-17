@@ -1,0 +1,496 @@
+openapi: 3.0.3
+info:
+  title: Payment Service API
+  description: Microservice for payment processing
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8084/api/v1
+    description: Local Development
+  - url: https://staging-api.example.com/payments/v1
+    description: Staging Environment
+
+tags:
+  - name: Payments
+    description: Payment processing
+  - name: Refunds
+    description: Refund management
+  - name: PaymentMethods
+    description: Saved payment methods
+
+paths:
+  /payments:
+    get:
+      operationId: listPayments
+      summary: List payments
+      description: Retrieve payment history
+      tags:
+        - Payments
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: customerId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: orderId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, processing, completed, failed, refunded]
+        - name: fromDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: toDate
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Payments retrieved
+
+    post:
+      operationId: createPayment
+      summary: Process payment
+      description: Process a new payment
+      tags:
+        - Payments
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePaymentRequest'
+            example:
+              orderId: "550e8400-e29b-41d4-a716-446655440000"
+              amount: 159.99
+              currency: "USD"
+              paymentMethodId: "pm_card_visa"
+              description: "Order #12345"
+      responses:
+        '201':
+          description: Payment processed
+        '400':
+          description: Invalid payment data
+        '402':
+          description: Payment failed
+        '422':
+          description: Insufficient funds
+
+  /payments/{paymentId}:
+    get:
+      operationId: getPaymentById
+      summary: Get payment details
+      description: Retrieve payment information
+      tags:
+        - Payments
+      parameters:
+        - name: paymentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Payment found
+        '404':
+          description: Payment not found
+
+  /payments/{paymentId}/capture:
+    post:
+      operationId: capturePayment
+      summary: Capture payment
+      description: Capture an authorized payment
+      tags:
+        - Payments
+      parameters:
+        - name: paymentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+                  description: Amount to capture (optional, defaults to full amount)
+            example:
+              amount: 159.99
+      responses:
+        '200':
+          description: Payment captured
+        '400':
+          description: Cannot capture payment
+        '404':
+          description: Payment not found
+
+  /payments/{paymentId}/void:
+    post:
+      operationId: voidPayment
+      summary: Void payment
+      description: Void an authorized payment
+      tags:
+        - Payments
+      parameters:
+        - name: paymentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Payment voided
+        '400':
+          description: Cannot void payment
+        '404':
+          description: Payment not found
+
+  /refunds:
+    get:
+      operationId: listRefunds
+      summary: List refunds
+      description: Retrieve refund history
+      tags:
+        - Refunds
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: paymentId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, processing, completed, failed]
+      responses:
+        '200':
+          description: Refunds retrieved
+
+    post:
+      operationId: createRefund
+      summary: Process refund
+      description: Process a refund for a payment
+      tags:
+        - Refunds
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRefundRequest'
+            example:
+              paymentId: "550e8400-e29b-41d4-a716-446655440000"
+              amount: 50.00
+              reason: "Product returned"
+      responses:
+        '201':
+          description: Refund processed
+        '400':
+          description: Invalid refund request
+        '404':
+          description: Payment not found
+
+  /refunds/{refundId}:
+    get:
+      operationId: getRefundById
+      summary: Get refund details
+      description: Retrieve refund information
+      tags:
+        - Refunds
+      parameters:
+        - name: refundId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Refund found
+        '404':
+          description: Refund not found
+
+  /payment-methods:
+    get:
+      operationId: listPaymentMethods
+      summary: List payment methods
+      description: Get saved payment methods for a customer
+      tags:
+        - PaymentMethods
+      parameters:
+        - name: customerId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Payment methods retrieved
+
+    post:
+      operationId: createPaymentMethod
+      summary: Add payment method
+      description: Save a new payment method
+      tags:
+        - PaymentMethods
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePaymentMethodRequest'
+            example:
+              customerId: "550e8400-e29b-41d4-a716-446655440000"
+              type: "card"
+              card:
+                number: "4242424242424242"
+                expMonth: 12
+                expYear: 2025
+                cvc: "123"
+              billingAddress:
+                street: "123 Main St"
+                city: "San Francisco"
+                state: "CA"
+                zipCode: "94102"
+                country: "USA"
+      responses:
+        '201':
+          description: Payment method added
+        '400':
+          description: Invalid payment method
+
+  /payment-methods/{paymentMethodId}:
+    get:
+      operationId: getPaymentMethodById
+      summary: Get payment method
+      description: Retrieve payment method details
+      tags:
+        - PaymentMethods
+      parameters:
+        - name: paymentMethodId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Payment method found
+        '404':
+          description: Payment method not found
+
+    delete:
+      operationId: deletePaymentMethod
+      summary: Delete payment method
+      description: Remove saved payment method
+      tags:
+        - PaymentMethods
+      parameters:
+        - name: paymentMethodId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Payment method deleted
+        '404':
+          description: Payment method not found
+
+  /payment-methods/{paymentMethodId}/default:
+    post:
+      operationId: setDefaultPaymentMethod
+      summary: Set default payment method
+      description: Set as customer's default payment method
+      tags:
+        - PaymentMethods
+      parameters:
+        - name: paymentMethodId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Default updated
+        '404':
+          description: Payment method not found
+
+components:
+  schemas:
+    Payment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        orderId:
+          type: string
+          format: uuid
+        customerId:
+          type: string
+          format: uuid
+        amount:
+          type: number
+          format: decimal
+        currency:
+          type: string
+        status:
+          type: string
+          enum: [pending, processing, completed, failed, refunded]
+        paymentMethodId:
+          type: string
+        description:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    CreatePaymentRequest:
+      type: object
+      required:
+        - orderId
+        - amount
+        - currency
+        - paymentMethodId
+      properties:
+        orderId:
+          type: string
+          format: uuid
+        amount:
+          type: number
+        currency:
+          type: string
+          default: USD
+        paymentMethodId:
+          type: string
+        description:
+          type: string
+
+    Refund:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        paymentId:
+          type: string
+          format: uuid
+        amount:
+          type: number
+          format: decimal
+        reason:
+          type: string
+        status:
+          type: string
+          enum: [pending, processing, completed, failed]
+        createdAt:
+          type: string
+          format: date-time
+
+    CreateRefundRequest:
+      type: object
+      required:
+        - paymentId
+      properties:
+        paymentId:
+          type: string
+          format: uuid
+        amount:
+          type: number
+          description: Amount to refund (optional, defaults to full amount)
+        reason:
+          type: string
+
+    PaymentMethod:
+      type: object
+      properties:
+        id:
+          type: string
+        customerId:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [card, bank_account, paypal]
+        last4:
+          type: string
+        brand:
+          type: string
+        isDefault:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    CreatePaymentMethodRequest:
+      type: object
+      required:
+        - customerId
+        - type
+      properties:
+        customerId:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [card, bank_account]
+        card:
+          type: object
+          properties:
+            number:
+              type: string
+            expMonth:
+              type: integer
+            expYear:
+              type: integer
+            cvc:
+              type: string
+        billingAddress:
+          type: object
+          properties:
+            street:
+              type: string
+            city:
+              type: string
+            state:
+              type: string
+            zipCode:
+              type: string
+            country:
+              type: string

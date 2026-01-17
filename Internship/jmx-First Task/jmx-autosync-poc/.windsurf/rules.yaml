@@ -1,0 +1,180 @@
+# Windsurf Cascade Rules for JMX Auto-Generation
+# 
+# These rules enable Cascade to automatically detect API changes
+# and generate/update JMeter performance test files.
+
+name: "JMX Performance Test Sync"
+version: "1.0.0"
+
+# =============================================================================
+# TRIGGERS - When should Cascade act?
+# =============================================================================
+
+triggers:
+  # Trigger 1: OpenAPI/Swagger file changes
+  file_patterns:
+    - pattern: "**/*openapi*.{yaml,yml,json}"
+      action: "suggest_jmx_regeneration"
+    - pattern: "**/*swagger*.{yaml,yml,json}"
+      action: "suggest_jmx_regeneration"
+    - pattern: "**/api-specs/**/*.{yaml,yml,json}"
+      action: "suggest_jmx_regeneration"
+    - pattern: "**/openapi/**/*.{yaml,yml,json}"
+      action: "suggest_jmx_regeneration"
+
+  # Trigger 2: Natural language commands
+  commands:
+    - match: ["sync jmx", "sync performance tests", "update jmx", "regenerate jmx"]
+      action: "sync_all_jmx"
+    - match: ["generate jmx for", "create jmx for", "make jmx for"]
+      action: "generate_single_jmx"
+    - match: ["add endpoint", "new endpoint", "create endpoint"]
+      action: "add_endpoint_and_sync"
+
+# =============================================================================
+# ACTIONS - What should Cascade do?
+# =============================================================================
+
+actions:
+  suggest_jmx_regeneration:
+    type: "prompt"
+    message: |
+      🔄 **API Specification Changed**
+      
+      I detected changes to an OpenAPI/Swagger specification.
+      
+      Would you like me to:
+      1. **Regenerate JMX** - Update the performance test file
+      2. **Show diff** - See what changed in the API
+      3. **Skip** - I'll handle it later
+      
+      Just say "regenerate", "show diff", or "skip".
+
+  sync_all_jmx:
+    type: "task"
+    description: "Sync all JMX files with current API specifications"
+    steps:
+      - "Find all OpenAPI specs in api-specs/"
+      - "For each spec, generate/update corresponding JMX file"
+      - "Report summary of changes"
+
+  generate_single_jmx:
+    type: "task"
+    description: "Generate JMX for a specific API spec"
+    steps:
+      - "Parse the specified OpenAPI file"
+      - "Generate JMX with all endpoints"
+      - "Save to performance-tests/ directory"
+
+# =============================================================================
+# CONTEXT - Information Cascade should remember
+# =============================================================================
+
+context:
+  project_type: "api-performance-testing"
+  
+  directories:
+    api_specs: "api-specs"
+    jmx_output: "performance-tests"
+    templates: "templates"
+  
+  file_mappings:
+    description: "OpenAPI spec filename maps to JMX filename"
+    example: "user-service.yaml → user-service.jmx"
+
+  jmx_defaults:
+    threads: 10
+    ramp_up: 60
+    duration: 300
+    think_time_min: 1000
+    think_time_max: 3000
+
+# =============================================================================
+# PROMPTS - Pre-defined responses for common questions
+# =============================================================================
+
+prompts:
+  how_to_add_api:
+    triggers: ["how do I add", "how to add new api", "add new service"]
+    response: |
+      To add a new API for performance testing:
+      
+      1. **Add your OpenAPI spec:**
+         ```
+         cp your-api.yaml api-specs/
+         ```
+      
+      2. **Ask me to generate JMX:**
+         ```
+         @cascade generate jmx for your-api.yaml
+         ```
+      
+      Or just save the file and I'll offer to generate it automatically!
+
+  how_to_customize:
+    triggers: ["customize", "change threads", "modify test"]
+    response: |
+      You can customize JMX generation by:
+      
+      1. **Edit `.windsurf/jmx-config.yaml`** for global settings
+      2. **Tell me directly:** "Generate jmx with 50 threads and 10 minute duration"
+      3. **Add x-jmeter extensions** to your OpenAPI spec for per-endpoint settings
+
+  explain_jmx:
+    triggers: ["what is jmx", "explain jmx", "jmeter"]
+    response: |
+      **JMX files** are JMeter test plans that define:
+      - How many virtual users (threads)
+      - Which API endpoints to test
+      - Request parameters and bodies
+      - Assertions to validate responses
+      - Think times between requests
+      
+      I generate these automatically from your OpenAPI specs so your 
+      performance tests always match your API definitions!
+
+# =============================================================================
+# WORKFLOWS - Multi-step processes
+# =============================================================================
+
+workflows:
+  full_sync:
+    name: "Full JMX Sync"
+    description: "Regenerate all JMX files from all API specs"
+    trigger: "sync all"
+    steps:
+      - action: "scan"
+        target: "api-specs/**/*.yaml"
+      - action: "generate_jmx"
+        for_each: "scanned_files"
+      - action: "report"
+        template: "sync_summary"
+
+  add_endpoint_flow:
+    name: "Add New Endpoint"
+    description: "Add endpoint to spec and regenerate JMX"
+    trigger: "add endpoint"
+    steps:
+      - action: "prompt"
+        message: "Which API spec? (e.g., user-service.yaml)"
+      - action: "prompt"
+        message: "Endpoint details? (e.g., GET /users/{id}/profile)"
+      - action: "edit_spec"
+        add: "new_endpoint"
+      - action: "generate_jmx"
+        for: "edited_spec"
+
+# =============================================================================
+# VALIDATION - Ensure quality
+# =============================================================================
+
+validation:
+  before_generate:
+    - "Verify OpenAPI spec is valid YAML/JSON"
+    - "Check all referenced schemas exist"
+    - "Ensure server URLs are defined"
+  
+  after_generate:
+    - "Verify JMX is valid XML"
+    - "Check all endpoints are included"
+    - "Validate variable references"
