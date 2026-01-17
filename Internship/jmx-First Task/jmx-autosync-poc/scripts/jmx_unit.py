@@ -649,18 +649,24 @@ class JMXUnitGenerator:
         ET.SubElement(obj, 'name').text = name
         value = ET.SubElement(obj, 'value', {'class': 'SampleSaveConfiguration'})
         
-        for prop in ['time', 'latency', 'timestamp', 'success', 'label', 
-                     'code', 'message', 'threadName', 'dataType', 'encoding',
-                     'assertions', 'subresults', 'responseData', 'samplerData',
-                     'xml', 'fieldNames', 'responseHeaders', 'requestHeaders',
-                     'responseDataOnError', 'saveAssertionResultsFailureMessage',
-                     'assertionsResultsToSave', 'bytes', 'sentBytes', 'url',
-                     'threadCounts', 'idleTime', 'connectTime']:
-            ET.SubElement(value, prop).text = 'true' if prop in [
-                'time', 'latency', 'timestamp', 'success', 'label', 
-                'code', 'message', 'threadName', 'bytes', 'sentBytes',
-                'url', 'threadCounts', 'connectTime', 'assertions'
-            ] else 'false'
+        # Boolean properties
+        bool_props = {
+            'time': True, 'latency': True, 'timestamp': True, 'success': True,
+            'label': True, 'code': True, 'message': True, 'threadName': True,
+            'dataType': False, 'encoding': False, 'assertions': True,
+            'subresults': False, 'responseData': False, 'samplerData': False,
+            'xml': False, 'fieldNames': False, 'responseHeaders': False,
+            'requestHeaders': False, 'responseDataOnError': False,
+            'saveAssertionResultsFailureMessage': False, 'bytes': True,
+            'sentBytes': True, 'url': True, 'threadCounts': True,
+            'idleTime': False, 'connectTime': True
+        }
+        
+        for prop, enabled in bool_props.items():
+            ET.SubElement(value, prop).text = 'true' if enabled else 'false'
+        
+        # Integer property - assertionsResultsToSave must be an integer, not boolean
+        ET.SubElement(value, 'assertionsResultsToSave').text = '0'
     
     def _add_string_prop(self, parent: ET.Element, name: str, value: str) -> None:
         """Add a string property element."""
