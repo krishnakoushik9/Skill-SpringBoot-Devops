@@ -8,7 +8,7 @@ on:
   # Run on push to api-specs
   push:
     paths:
-      - 'api-specs/**'
+      - 'Internship/jmx-First Task/jmx-autosync-poc/api-specs/**'
   
   # Manual trigger
   workflow_dispatch:
@@ -32,9 +32,11 @@ jobs:
         run: pip install pyyaml
       
       - name: Generate Unit Test JMX files
+        working-directory: Internship/jmx-First Task/jmx-autosync-poc
         run: python scripts/jmx_unit.py --spec-dir api-specs --output-dir unit-tests
       
       - name: Generate Performance Test JMX files
+        working-directory: Internship/jmx-First Task/jmx-autosync-poc
         run: python scripts/jmx_generator.py --spec-dir api-specs --output-dir performance-tests
       
       - name: Check for changes
@@ -47,6 +49,6 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add unit-tests/ performance-tests/
+          git add .
           git commit -m "🤖 Auto-sync: Regenerate JMX files [skip ci]"
           git push
