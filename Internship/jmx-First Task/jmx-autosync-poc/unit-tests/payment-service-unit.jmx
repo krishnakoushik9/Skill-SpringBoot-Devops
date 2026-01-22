@@ -4,7 +4,7 @@
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Unit Test Plan" enabled="true">
       <stringProp name="TestPlan.comments">UNIT TEST - Auto-generated from: Payment Service API
 Version: 1.0.0
-Generated: 2026-01-22T01:23:32.142211
+Generated: 2026-01-22T03:21:10.652643
 Purpose: Functional validation of individual API endpoints</stringProp>
       <boolProp name="TestPlan.functional_mode">false</boolProp>
       <boolProp name="TestPlan.tearDown_on_shutdown">true</boolProp>
@@ -171,7 +171,7 @@ Purpose: Functional validation of individual API endpoints</stringProp>
         <hashTree>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Status Code Assertion" enabled="true">
             <collectionProp name="Asserion.test_strings">
-              <stringProp name="-7107757382608938221">200</stringProp>
+              <stringProp name="-7311986782165307286">200</stringProp>
             </collectionProp>
             <stringProp name="Assertion.custom_message">Expected one of status codes: 200</stringProp>
             <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
@@ -238,7 +238,7 @@ Purpose: Functional validation of individual API endpoints</stringProp>
         <hashTree>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Status Code Assertion" enabled="true">
             <collectionProp name="Asserion.test_strings">
-              <stringProp name="7710162063499256411">201</stringProp>
+              <stringProp name="2705296935558202292">201</stringProp>
             </collectionProp>
             <stringProp name="Assertion.custom_message">Expected one of status codes: 201</stringProp>
             <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
@@ -292,7 +292,7 @@ Purpose: Functional validation of individual API endpoints</stringProp>
         <hashTree>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Status Code Assertion" enabled="true">
             <collectionProp name="Asserion.test_strings">
-              <stringProp name="-7107757382608938221">200</stringProp>
+              <stringProp name="-7311986782165307286">200</stringProp>
             </collectionProp>
             <stringProp name="Assertion.custom_message">Expected one of status codes: 200</stringProp>
             <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
@@ -355,7 +355,7 @@ Purpose: Functional validation of individual API endpoints</stringProp>
         <hashTree>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Status Code Assertion" enabled="true">
             <collectionProp name="Asserion.test_strings">
-              <stringProp name="-7107757382608938221">200</stringProp>
+              <stringProp name="-7311986782165307286">200</stringProp>
             </collectionProp>
             <stringProp name="Assertion.custom_message">Expected one of status codes: 200</stringProp>
             <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
@@ -409,7 +409,7 @@ Purpose: Functional validation of individual API endpoints</stringProp>
         <hashTree>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Status Code Assertion" enabled="true">
             <collectionProp name="Asserion.test_strings">
-              <stringProp name="-7107757382608938221">200</stringProp>
+              <stringProp name="-7311986782165307286">200</stringProp>
             </collectionProp>
             <stringProp name="Assertion.custom_message">Expected one of status codes: 200</stringProp>
             <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
@@ -492,7 +492,7 @@ Purpose: Functional validation of individual API endpoints</stringProp>
         <hashTree>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Status Code Assertion" enabled="true">
             <collectionProp name="Asserion.test_strings">
-              <stringProp name="-7107757382608938221">200</stringProp>
+              <stringProp name="-7311986782165307286">200</stringProp>
             </collectionProp>
             <stringProp name="Assertion.custom_message">Expected one of status codes: 200</stringProp>
             <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
@@ -557,7 +557,7 @@ Purpose: Functional validation of individual API endpoints</stringProp>
         <hashTree>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Status Code Assertion" enabled="true">
             <collectionProp name="Asserion.test_strings">
-              <stringProp name="7710162063499256411">201</stringProp>
+              <stringProp name="2705296935558202292">201</stringProp>
             </collectionProp>
             <stringProp name="Assertion.custom_message">Expected one of status codes: 201</stringProp>
             <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
@@ -611,7 +611,7 @@ Purpose: Functional validation of individual API endpoints</stringProp>
         <hashTree>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Status Code Assertion" enabled="true">
             <collectionProp name="Asserion.test_strings">
-              <stringProp name="-7107757382608938221">200</stringProp>
+              <stringProp name="-7311986782165307286">200</stringProp>
             </collectionProp>
             <stringProp name="Assertion.custom_message">Expected one of status codes: 200</stringProp>
             <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
@@ -673,7 +673,7 @@ Purpose: Functional validation of individual API endpoints</stringProp>
         <hashTree>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Status Code Assertion" enabled="true">
             <collectionProp name="Asserion.test_strings">
-              <stringProp name="-7107757382608938221">200</stringProp>
+              <stringProp name="-7311986782165307286">200</stringProp>
             </collectionProp>
             <stringProp name="Assertion.custom_message">Expected one of status codes: 200</stringProp>
             <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
@@ -750,7 +750,7 @@ Purpose: Functional validation of individual API endpoints</stringProp>
         <hashTree>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Status Code Assertion" enabled="true">
             <collectionProp name="Asserion.test_strings">
-              <stringProp name="7710162063499256411">201</stringProp>
+              <stringProp name="2705296935558202292">201</stringProp>
             </collectionProp>
             <stringProp name="Assertion.custom_message">Expected one of status codes: 201</stringProp>
             <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
@@ -804,7 +804,7 @@ Purpose: Functional validation of individual API endpoints</stringProp>
         <hashTree>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Status Code Assertion" enabled="true">
             <collectionProp name="Asserion.test_strings">
-              <stringProp name="-7107757382608938221">200</stringProp>
+              <stringProp name="-7311986782165307286">200</stringProp>
             </collectionProp>
             <stringProp name="Assertion.custom_message">Expected one of status codes: 200</stringProp>
             <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
@@ -858,7 +858,7 @@ Purpose: Functional validation of individual API endpoints</stringProp>
         <hashTree>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Status Code Assertion" enabled="true">
             <collectionProp name="Asserion.test_strings">
-              <stringProp name="-5248352666138407958">204</stringProp>
+              <stringProp name="8265807738691858716">204</stringProp>
             </collectionProp>
             <stringProp name="Assertion.custom_message">Expected one of status codes: 204</stringProp>
             <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
@@ -903,7 +903,7 @@ Purpose: Functional validation of individual API endpoints</stringProp>
         <hashTree>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Status Code Assertion" enabled="true">
             <collectionProp name="Asserion.test_strings">
-              <stringProp name="-7107757382608938221">200</stringProp>
+              <stringProp name="-7311986782165307286">200</stringProp>
             </collectionProp>
             <stringProp name="Assertion.custom_message">Expected one of status codes: 200</stringProp>
             <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
