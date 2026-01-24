@@ -4,7 +4,7 @@
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Generated Test Plan" enabled="true">
       <stringProp name="TestPlan.comments">Auto-generated from: Payment Service API
 Version: 1.0.0
-Generated: 2026-01-24T07:43:29.917007</stringProp>
+Generated: 2026-01-24T07:54:58.029868</stringProp>
       <boolProp name="TestPlan.functional_mode">false</boolProp>
       <boolProp name="TestPlan.tearDown_on_shutdown">true</boolProp>
       <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
@@ -193,7 +193,7 @@ Generated: 2026-01-24T07:43:29.917007</stringProp>
         <hashTree>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Code Assertion" enabled="true">
             <collectionProp name="Asserion.test_strings">
-              <stringProp name="8680006792292571700">200</stringProp>
+              <stringProp name="6128969240844568127">200</stringProp>
             </collectionProp>
             <stringProp name="Assertion.custom_message"/>
             <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
@@ -246,7 +246,7 @@ Generated: 2026-01-24T07:43:29.917007</stringProp>
         <hashTree>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Code Assertion" enabled="true">
             <collectionProp name="Asserion.test_strings">
-              <stringProp name="1789492018098941385">201</stringProp>
+              <stringProp name="-5447657788303020322">201</stringProp>
             </collectionProp>
             <stringProp name="Assertion.custom_message"/>
             <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
@@ -286,7 +286,7 @@ Generated: 2026-01-24T07:43:29.917007</stringProp>
         <hashTree>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Code Assertion" enabled="true">
             <collectionProp name="Asserion.test_strings">
-              <stringProp name="8680006792292571700">200</stringProp>
+              <stringProp name="6128969240844568127">200</stringProp>
             </collectionProp>
             <stringProp name="Assertion.custom_message"/>
             <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
@@ -335,7 +335,7 @@ Generated: 2026-01-24T07:43:29.917007</stringProp>
         <hashTree>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Code Assertion" enabled="true">
             <collectionProp name="Asserion.test_strings">
-              <stringProp name="8680006792292571700">200</stringProp>
+              <stringProp name="6128969240844568127">200</stringProp>
             </collectionProp>
             <stringProp name="Assertion.custom_message"/>
             <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
@@ -375,7 +375,7 @@ Generated: 2026-01-24T07:43:29.917007</stringProp>
         <hashTree>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Code Assertion" enabled="true">
             <collectionProp name="Asserion.test_strings">
-              <stringProp name="8680006792292571700">200</stringProp>
+              <stringProp name="6128969240844568127">200</stringProp>
             </collectionProp>
             <stringProp name="Assertion.custom_message"/>
             <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
@@ -459,7 +459,7 @@ Generated: 2026-01-24T07:43:29.917007</stringProp>
         <hashTree>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Code Assertion" enabled="true">
             <collectionProp name="Asserion.test_strings">
-              <stringProp name="8680006792292571700">200</stringProp>
+              <stringProp name="6128969240844568127">200</stringProp>
             </collectionProp>
             <stringProp name="Assertion.custom_message"/>
             <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
@@ -510,7 +510,7 @@ Generated: 2026-01-24T07:43:29.917007</stringProp>
         <hashTree>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Code Assertion" enabled="true">
             <collectionProp name="Asserion.test_strings">
-              <stringProp name="1789492018098941385">201</stringProp>
+              <stringProp name="-5447657788303020322">201</stringProp>
             </collectionProp>
             <stringProp name="Assertion.custom_message"/>
             <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
@@ -550,7 +550,7 @@ Generated: 2026-01-24T07:43:29.917007</stringProp>
         <hashTree>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Code Assertion" enabled="true">
             <collectionProp name="Asserion.test_strings">
-              <stringProp name="8680006792292571700">200</stringProp>
+              <stringProp name="6128969240844568127">200</stringProp>
             </collectionProp>
             <stringProp name="Assertion.custom_message"/>
             <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
@@ -613,7 +613,7 @@ Generated: 2026-01-24T07:43:29.917007</stringProp>
         <hashTree>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Code Assertion" enabled="true">
             <collectionProp name="Asserion.test_strings">
-              <stringProp name="8680006792292571700">200</stringProp>
+              <stringProp name="6128969240844568127">200</stringProp>
             </collectionProp>
             <stringProp name="Assertion.custom_message"/>
             <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
@@ -676,7 +676,7 @@ Generated: 2026-01-24T07:43:29.917007</stringProp>
         <hashTree>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Code Assertion" enabled="true">
             <collectionProp name="Asserion.test_strings">
-              <stringProp name="1789492018098941385">201</stringProp>
+              <stringProp name="-5447657788303020322">201</stringProp>
             </collectionProp>
             <stringProp name="Assertion.custom_message"/>
             <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
@@ -716,7 +716,7 @@ Generated: 2026-01-24T07:43:29.917007</stringProp>
         <hashTree>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Code Assertion" enabled="true">
             <collectionProp name="Asserion.test_strings">
-              <stringProp name="8680006792292571700">200</stringProp>
+              <stringProp name="6128969240844568127">200</stringProp>
             </collectionProp>
             <stringProp name="Assertion.custom_message"/>
             <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
@@ -756,7 +756,7 @@ Generated: 2026-01-24T07:43:29.917007</stringProp>
         <hashTree>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Code Assertion" enabled="true">
             <collectionProp name="Asserion.test_strings">
-              <stringProp name="-3599221376842995361">204</stringProp>
+              <stringProp name="-1256176925137883464">204</stringProp>
             </collectionProp>
             <stringProp name="Assertion.custom_message"/>
             <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
@@ -787,7 +787,7 @@ Generated: 2026-01-24T07:43:29.917007</stringProp>
         <hashTree>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Code Assertion" enabled="true">
             <collectionProp name="Asserion.test_strings">
-              <stringProp name="8680006792292571700">200</stringProp>
+              <stringProp name="6128969240844568127">200</stringProp>
             </collectionProp>
             <stringProp name="Assertion.custom_message"/>
             <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
